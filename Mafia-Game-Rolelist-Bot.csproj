@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Mafia_Game_Rolelist_Bot</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="BotKey.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="BotKey.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02132" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0-nightly-02132" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0-nightly-02132" />
+    <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0-nightly-02132" />
+  </ItemGroup>
+
+</Project>
