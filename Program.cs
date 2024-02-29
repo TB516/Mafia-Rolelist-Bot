@@ -1,7 +1,7 @@
 ﻿using DSharpPlus.SlashCommands;
 using DSharpPlus;
 
-namespace Mafia_Game_Rolelist_Bot
+namespace Mafia_Bot
 {
     internal class Program
     {
@@ -19,6 +19,8 @@ namespace Mafia_Game_Rolelist_Bot
         static async Task MainAsync()
         {
             SlashCommandsExtension slash = discord.UseSlashCommands();
+
+            slash.RegisterCommands<RolelistSlashCommands>(724358800517365851);
 
             await discord.ConnectAsync();
             Console.WriteLine("Connected");
