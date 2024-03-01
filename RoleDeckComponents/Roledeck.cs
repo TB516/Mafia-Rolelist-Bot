@@ -2,17 +2,17 @@
 
 namespace Mafia_Bot.RoleDeckComponents
 {
-    internal struct Roledeck
+    internal class Roledeck
     {
         private JsonNode _roleDeck;
         private JsonArray[] _rolelist;
         private JsonNode _phaseTimes;
         private JsonArray _roleBans;
 
-        public readonly string JsonString => _roleDeck.ToString();
-        public readonly JsonNode[] Rolelist => _rolelist;
-        public readonly JsonNode PhaseTimes => _phaseTimes;
-        public readonly JsonArray BannedRoled => _roleBans;
+        public string JsonString => _roleDeck.ToString();
+        public JsonArray[] Rolelist => _rolelist;
+        public JsonNode PhaseTimes => _phaseTimes;
+        public JsonArray BannedRoled => _roleBans;
 
         public Roledeck(string json)
         {
