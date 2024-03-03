@@ -32,7 +32,7 @@ namespace Mafia_Bot.RoleDeckComponents
 
             _messageBuilder = new();
 
-            _messageBuilder.WithContent($"# {FormatString(_deck.Name)} By {author}\n\n{GetRolelist()}{GetPhaseTimes()}{GetBannedRoles()}");
+            _messageBuilder.WithContent($"# \"{FormatString(_deck.Name)}\" By {author}\n\n{GetRolelist()}{GetPhaseTimes()}{GetBannedRoles()}");
 
             _messageBuilder.AddFile($"{_deck.Name}.json", new MemoryStream(Encoding.UTF8.GetBytes(_deck.JsonString)));
         }
