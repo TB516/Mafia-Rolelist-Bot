@@ -1,7 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using Newtonsoft.Json.Linq;
 using System.Text;
-using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace Mafia_Bot.RoleDeckComponents
@@ -19,9 +19,16 @@ namespace Mafia_Bot.RoleDeckComponents
         /// </summary>
         /// <param name="author"></param>
         /// <param name="json"></param>
-        public RoledeckMessage(string author, JsonNode json)
+        public RoledeckMessage(string author, JObject json)
         {
-            _deck = new(json);
+            try
+            {
+                _deck = new(json);
+            }
+            catch
+            {
+                throw new KeyNotFoundException("A JSON property was not found!");
+            }
 
             _messageBuilder = new();
 

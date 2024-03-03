@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Nodes;
+﻿using Newtonsoft.Json.Linq;
 
 namespace Mafia_Bot.RoleDeckComponents
 {
@@ -23,7 +23,7 @@ namespace Mafia_Bot.RoleDeckComponents
             night,
         }
 
-        private readonly JsonNode _roleDeck;
+        private readonly JObject _roleDeck;
         private readonly string _name;
         private readonly string[][] _rolelist;
         private readonly int[] _phaseTimes;
@@ -54,13 +54,15 @@ namespace Mafia_Bot.RoleDeckComponents
         /// Wrapper for rolelist data
         /// </summary>
         /// <param name="json">JSON node to parse</param>
-        public Roledeck(JsonNode json)
+        /// <exception cref="KeyNotFoundException">Thrown if JSON property is not found</exception>
+        public Roledeck(JObject json)
         {
             _roleDeck = json;
+
             _name = _roleDeck["name"]!.ToString();
-            _rolelist = new string[_roleDeck["roleList"]!.AsArray().Count][];
-            _phaseTimes = new int[_roleDeck["phaseTimes"]!.AsObject().Count];
-            _roleBans = new string[_roleDeck["disabledRoles"]!.AsArray().Count];
+            _rolelist = new string[_roleDeck["roleList"]!.Count()][];
+            _phaseTimes = new int[_roleDeck["phaseTimes"]!.Count()];
+            _roleBans = new string[_roleDeck["disabledRoles"]!.Count()];
 
             PopulateRolelist();
             PopulatePhaseTimes();
@@ -70,12 +72,12 @@ namespace Mafia_Bot.RoleDeckComponents
         {
             for (int i = 0; i < _rolelist.Length; i++)
             {
-                _rolelist[i] = new string[_roleDeck["roleList"]!.AsArray()[i]!["options"]!.AsArray().Count];
+                _rolelist[i] = new string[_roleDeck["roleList"]![i]!["options"]!.Count()];
 
                 for (int j = 0; j < _rolelist[i].Length; j++)
                 {
-                    string type = _roleDeck["roleList"]!.AsArray()[i]!["options"]!.AsArray()[j]!["type"]!.ToString();
-                    _rolelist[i][j] = _roleDeck["roleList"]!.AsArray()[i]!["options"]!.AsArray()[j]![type]!.ToString();
+                    string type = _roleDeck["roleList"]![i]!["options"]![j]!["type"]!.ToString();
+                    _rolelist[i][j] = _roleDeck["roleList"]![i]!["options"]![j]![type]!.ToString();
                 }
             }
         }
@@ -90,7 +92,7 @@ namespace Mafia_Bot.RoleDeckComponents
         {
             for (int i = 0; i < _roleBans.Length; i++)
             {
-                _roleBans[i] = _roleDeck["disabledRoles"]!.AsArray()[i]!.ToString();
+                _roleBans[i] = _roleDeck["disabledRoles"]![i]!.ToString();
             }
         }
     }
