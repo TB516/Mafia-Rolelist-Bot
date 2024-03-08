@@ -59,7 +59,16 @@ namespace Mafia_Bot.RoleDeckComponents
         {
             _roleDeck = json;
 
+            if (_roleDeck["name"] == null)
+            {
+                _roleDeck.Add("name", "Unnamed Game Mode");
+            }
+            else if (_roleDeck["name"]!.ToString().Trim() == "")
+            {
+                _roleDeck["name"] = "Unnamed Game Mode";
+            }
             _name = _roleDeck["name"]!.ToString();
+
             _rolelist = new string[_roleDeck["roleList"]!.Count()][];
             _phaseTimes = new int[_roleDeck["phaseTimes"]!.Count()];
             _roleBans = new string[_roleDeck["disabledRoles"]!.Count()];

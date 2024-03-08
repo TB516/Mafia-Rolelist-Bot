@@ -6,7 +6,7 @@ namespace Mafia_Bot
 {
     internal class Program
     {
-        public static DiscordClient discord = new DiscordClient(new DiscordConfiguration()
+        public static DiscordClient Discord = new DiscordClient(new DiscordConfiguration()
         {
             Token = File.ReadAllLines("BotKey.txt")[0],
             TokenType = TokenType.Bot,
@@ -19,11 +19,11 @@ namespace Mafia_Bot
         }
         static async Task MainAsync()
         {
-            SlashCommandsExtension slash = discord.UseSlashCommands();
+            SlashCommandsExtension slash = Discord.UseSlashCommands();
 
-            slash.RegisterCommands<RoledeckSlashCommands>(724358800517365851);
+            slash.RegisterCommands<RoledeckSlashCommands>();
 
-            await discord.ConnectAsync();
+            await Discord.ConnectAsync();
             Console.WriteLine("Connected");
             while (Console.ReadLine() != "stop") ;
         }
