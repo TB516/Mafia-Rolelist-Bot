@@ -4,6 +4,7 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using Mafia_Bot.RoleDeckComponents.InteractionPrechecks;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 
 namespace Mafia_Bot.RoleDeckComponents
 {
@@ -22,6 +23,8 @@ namespace Mafia_Bot.RoleDeckComponents
         [SlashCommand("post", "Posts a formatted gamemode to the current channel.")]
         public async Task PostList(InteractionContext ctx, [Option("JSON", "JSON data of the gamemode.")] string json)
         {
+            json = Regex.Replace(json, @"\\t|\t|\\n|\n|\\r|\r", string.Empty);
+
             JObject jsonNode;
             RoledeckMessage message;
             try
@@ -34,6 +37,7 @@ namespace Mafia_Bot.RoleDeckComponents
                 ctx.CreateResponseAsync("Invalid gamemode data entered!", true);
                 return;
             }
+            message.SendRoledeck(ctx);
         }
 
         [ContextMenu(DSharpPlus.ApplicationCommandType.MessageContextMenu, "Delete Gamemode")]
