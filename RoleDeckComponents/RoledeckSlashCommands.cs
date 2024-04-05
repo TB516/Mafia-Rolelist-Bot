@@ -30,7 +30,7 @@ namespace Mafia_Bot.RoleDeckComponents
             try
             {
                 jsonNode = JObject.Parse(json)!;
-                message = new(ctx.Member.Nickname, jsonNode);
+                message = new(ctx.Member.DisplayName, jsonNode);
             }
             catch
             {
