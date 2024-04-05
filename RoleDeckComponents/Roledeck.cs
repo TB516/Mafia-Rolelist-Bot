@@ -81,13 +81,21 @@ namespace Mafia_Bot.RoleDeckComponents
         {
             for (int i = 0; i < _rolelist.Length; i++)
             {
-                _rolelist[i] = new string[_roleDeck["roleList"]![i]!["options"]!.Count()];
-
-                for (int j = 0; j < _rolelist[i].Length; j++)
+                switch (_roleDeck["roleList"]![i]!["type"]!.ToString())
                 {
-                    string type = _roleDeck["roleList"]![i]!["options"]![j]!["type"]!.ToString();
-                    _rolelist[i][j] = _roleDeck["roleList"]![i]!["options"]![j]![type]!.ToString();
-                }
+                    case "any":
+                        _rolelist[i] = ["any"];
+                        break;
+                    default:
+                        _rolelist[i] = new string[_roleDeck["roleList"]![i]!["options"]!.Count()];
+
+                        for (int j = 0; j < _rolelist[i].Length; j++)
+                        {
+                            string type = _roleDeck["roleList"]![i]!["options"]![j]!["type"]!.ToString();
+                            _rolelist[i][j] = _roleDeck["roleList"]![i]!["options"]![j]![type]!.ToString();
+                        }
+                        break;
+                }  
             }
         }
         private readonly void PopulatePhaseTimes()
