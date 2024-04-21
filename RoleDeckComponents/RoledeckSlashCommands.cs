@@ -41,7 +41,7 @@ namespace Mafia_Bot.RoleDeckComponents
             }
             catch (Exception e)
             {
-                ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Invalid gamemode data entered!"));
+                ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(e.Message));
                 return;
             }
 
