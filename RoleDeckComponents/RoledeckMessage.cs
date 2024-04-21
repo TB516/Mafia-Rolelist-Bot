@@ -27,7 +27,7 @@ namespace Mafia_Bot.RoleDeckComponents
             }
             catch
             {
-                throw new KeyNotFoundException("A JSON property was not found!");
+                throw;
             }
 
             _messageBuilder = new();
@@ -42,7 +42,7 @@ namespace Mafia_Bot.RoleDeckComponents
         /// <param name="ctx"></param>
         public async void SendRoledeck(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(new(_messageBuilder));
+            await ctx.Channel.SendMessageAsync(_messageBuilder);
         }
         private string GetRolelist()
         {

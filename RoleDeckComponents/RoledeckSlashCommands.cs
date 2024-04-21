@@ -1,10 +1,10 @@
-﻿using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using Mafia_Bot.RoleDeckComponents.InteractionPrechecks;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Mafia_Bot.RoleDeckComponents
 {
@@ -23,21 +23,30 @@ namespace Mafia_Bot.RoleDeckComponents
         [SlashCommand("post", "Posts a formatted gamemode to the current channel.")]
         public async Task PostList(InteractionContext ctx, [Option("JSON", "JSON data of the gamemode.")] string json)
         {
+            await ctx.DeferAsync(true);
+
             json = Regex.Replace(json, @"\\t|\t|\\n|\n|\\r|\r", string.Empty);
 
-            JObject jsonNode;
             RoledeckMessage message;
+
             try
             {
-                jsonNode = JObject.Parse(json)!;
+                JObject jsonNode = JObject.Parse(json)!;
                 message = new(ctx.Member.DisplayName, jsonNode);
             }
-            catch
+            catch (Newtonsoft.Json.JsonReaderException)
             {
-                ctx.CreateResponseAsync("Invalid gamemode data entered!", true);
+                ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("JSON was not valid!"));
                 return;
             }
+            catch (Exception e)
+            {
+                ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Invalid gamemode data entered!"));
+                return;
+            }
+
             message.SendRoledeck(ctx);
+            ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Posted gamemode!"));
         }
 
         [ContextMenu(DSharpPlus.ApplicationCommandType.MessageContextMenu, "Delete Gamemode")]
