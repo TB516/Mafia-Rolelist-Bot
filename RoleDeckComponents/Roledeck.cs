@@ -7,6 +7,7 @@ namespace Mafia_Bot.RoleDeckComponents
     /// </summary>
     internal struct Roledeck
     {
+        public static readonly string[] RoleTypes = ["town", "mafia", "neutral", "fiends", "cult", "townInvestigative", "townKilling", "townSupport", "townProtective", "mafiaKilling", "mafiaSupport", "neutralEvil", "any"];
         private static readonly string s_rolesUrl = "https://raw.githubusercontent.com/mafia-rust/mafia/main/client/src/resources/roles.json";
         private static readonly int s_phasesCount = Enum.GetNames(typeof(Phases)).Length;
 
@@ -30,7 +31,7 @@ namespace Mafia_Bot.RoleDeckComponents
         private readonly string _name;
         private readonly string[][] _rolelist;
         private readonly int[] _phaseTimes;
-        private readonly string[] _roleBans;
+        private readonly string[] _enabledRoles;
 
         /// <summary>
         /// JSON data of rolelist
@@ -49,9 +50,9 @@ namespace Mafia_Bot.RoleDeckComponents
         /// </summary>
         public readonly int[] PhaseTimes => _phaseTimes;
         /// <summary>
-        /// String representation of banned roles
+        /// String representation of enabled roles
         /// </summary>
-        public readonly string[] BannedRoles => _roleBans;
+        public readonly string[] EnabledRoles => _enabledRoles;
 
         /// <summary>
         /// Wrapper for rolelist data
@@ -74,11 +75,11 @@ namespace Mafia_Bot.RoleDeckComponents
 
             _rolelist = new string[_roleDeck["roleList"]!.Count()][];
             _phaseTimes = new int[_roleDeck["phaseTimes"]!.Count()];
-            _roleBans = new string[_roleDeck["disabledRoles"]!.Count()];
+            _enabledRoles = new string[_roleDeck["enabledRoles"]!.Count()];
 
             PopulateRolelist();
             PopulatePhaseTimes();
-            PopulateRoleBans();
+            PopulateEnabledRoles();
         }
         private readonly void ValidateGamemode()
         {
@@ -95,9 +96,9 @@ namespace Mafia_Bot.RoleDeckComponents
             {
                 throw new KeyNotFoundException("Phase Times were not found in the entered JSON!");
             }
-            else if (_roleDeck["disabledRoles"] == null)
+            else if (_roleDeck["enabledRoles"] == null)
             {
-                throw new KeyNotFoundException("Disabled Roles were not found in the entered JSON!");
+                throw new KeyNotFoundException("Enabled Roles were not found in the entered JSON!");
             }
 
             ValidatePhaseTimes();
@@ -131,28 +132,21 @@ namespace Mafia_Bot.RoleDeckComponents
 
             for (int i = 0; i < _roleDeck["roleList"]!.Count(); i++)
             {
-                switch (_roleDeck["roleList"]![i]!["type"]!.ToString())
+                for (int j = 0; j < _roleDeck["roleList"]![i]!["options"]!.Count(); j++)
                 {
-                    case "any":
-                        break;
-                    default:
-                        for (int j = 0; j < _roleDeck["roleList"]![i]!["options"]!.Count(); j++)
-                        {
-                            string type = _roleDeck["roleList"]![i]!["options"]![j]!["type"]!.ToString();
-                            if (!roles.ContainsKey(_roleDeck["roleList"]![i]!["options"]![j]![type]!.ToString()))
-                            {
-                                throw new KeyNotFoundException($"Role : {_roleDeck["roleList"]![i]!["options"]![j]![type]} is not a valid role!");
-                            }
-                        }
-                        break;
+                    string type = _roleDeck["roleList"]![i]!["options"]![j]!["type"]!.ToString();
+                    if (!RoleTypes.Contains(_roleDeck["roleList"]![i]!["options"]![j]![type]!.ToString()) && !roles.ContainsKey(_roleDeck["roleList"]![i]!["options"]![j]![type]!.ToString()))
+                    {
+                        throw new KeyNotFoundException($"Role : {_roleDeck["roleList"]![i]!["options"]![j]![type]} is not a valid role or type!");
+                    }
                 }
             }
 
-            for (int i = 0; i < _roleDeck["disabledRoles"]!.Count(); i++)
+            for (int i = 0; i < _roleDeck["enabledRoles"]!.Count(); i++)
             {
-                if (!roles.ContainsKey(_roleDeck["disabledRoles"]![i]!.ToString()))
+                if (!roles.ContainsKey(_roleDeck["enabledRoles"]![i]!.ToString()))
                 {
-                    throw new KeyNotFoundException($"Role : {_roleDeck["disabledRoles"]![i]} is not a valid role to disable!");
+                    throw new KeyNotFoundException($"Role : {_roleDeck["enabledRoles"]![i]} is not a valid role to have enabled!");
                 }
             }
         }
@@ -184,11 +178,11 @@ namespace Mafia_Bot.RoleDeckComponents
                 _phaseTimes[i] = (int)_roleDeck["phaseTimes"]![((Phases)i).ToString()]!;
             }
         }
-        private readonly void PopulateRoleBans()
+        private readonly void PopulateEnabledRoles()
         {
-            for (int i = 0; i < _roleBans.Length; i++)
+            for (int i = 0; i < _enabledRoles.Length; i++)
             {
-                _roleBans[i] = _roleDeck["disabledRoles"]![i]!.ToString();
+                _enabledRoles[i] = _roleDeck["enabledRoles"]![i]!.ToString();
             }
         }
     }

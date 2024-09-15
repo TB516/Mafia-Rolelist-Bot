@@ -11,6 +11,7 @@ namespace Mafia_Bot.RoleDeckComponents
     /// </summary>
     public class RoledeckMessage
     {
+        private static readonly Uri s_wikiLink = new("https://mafia.jackpapel.com/wiki");
         private readonly Roledeck _deck;
         private readonly DiscordMessageBuilder _messageBuilder;
 
@@ -53,7 +54,29 @@ namespace Mafia_Bot.RoleDeckComponents
                 rolelist += "- ";
                 for (int j = 0; j < _deck.Rolelist[i].Length; j++)
                 {
-                    rolelist += FormatString(_deck.Rolelist[i][j].ToString()) + ((_deck.Rolelist[i].Length > 1 && j < _deck.Rolelist[i].Length - 1) ? " OR " : "");
+                    string roleset = FormatString(_deck.Rolelist[i][j].ToString());
+
+                    switch (roleset)
+                    {
+                        case "Town":
+                        case "Mafia":
+                        case "Neutral":
+                        case "Fiends":
+                        case "Cult":
+                        case "Town Investigative":
+                        case "Town Killing":
+                        case "Town Support":
+                        case "Town Protective":
+                        case "Mafia Killing":
+                        case "Mafia Support":
+                        case "Neutral Evil":
+                        case "Any":
+                            rolelist += $"[{roleset}]({s_wikiLink}/generated/role_set)" + ((_deck.Rolelist[i].Length > 1 && j < _deck.Rolelist[i].Length - 1) ? " OR " : "");
+                            break;
+                        default:
+                            rolelist += $"[{roleset}]({s_wikiLink}/role/{_deck.Rolelist[i][j].ToLower()})" + ((_deck.Rolelist[i].Length > 1 && j < _deck.Rolelist[i].Length - 1) ? " OR " : "");
+                            break;
+                    }
                 }
                 rolelist += "\n";
             }
@@ -73,16 +96,40 @@ namespace Mafia_Bot.RoleDeckComponents
         }
         private string GetBannedRoles()
         {
-            string bannedRoles = "## Disabled Roles\n";
+            string enabledRoles = "## Enabled Roles\n";
 
-            for (int i = 0; i < _deck.BannedRoles.Length; i++)
+            for (int i = 0; i < _deck.EnabledRoles.Length; i++)
             {
-                bannedRoles += $"- {FormatString(_deck.BannedRoles[i])}\n";
+                string roleset = FormatString(_deck.EnabledRoles[i].ToString());
+
+                switch (roleset)
+                {
+                    case "Town":
+                    case "Mafia":
+                    case "Neutral":
+                    case "Fiends":
+                    case "Cult":
+                        enabledRoles += $"- [{roleset}]({s_wikiLink}/standard/{_deck.EnabledRoles[i].ToLower()})\n";
+                        break;
+                    case "Town Investigative":
+                    case "Town Killing":
+                    case "Town Support":
+                    case "Town Protective":
+                    case "Mafia Killing":
+                    case "Mafia Support":
+                    case "Neutral Evil":
+                    case "Any":
+                        enabledRoles += $"- [{roleset}]({s_wikiLink}/generated/role_set)\n";
+                        break;
+                    default:
+                        enabledRoles += $"- [{roleset}]({s_wikiLink}/role/{_deck.EnabledRoles[i].ToLower()})\n";
+                        break;
+                }
             }
 
-            bannedRoles += (_deck.BannedRoles.Length == 0) ? "- None" : "";
+            enabledRoles += (_deck.EnabledRoles.Length == 0) ? "- None" : "";
 
-            return bannedRoles;
+            return enabledRoles;
         }
         /// <summary>
         /// Splits string at capitals and capitalizes the first letter
