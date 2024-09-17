@@ -87,7 +87,7 @@ namespace Mafia_Bot.RoleDeckComponents
 
             for (int i = 0; i < _deck.EnabledRoles.Length; i++)
             {
-                enabledRoles += $"- [{FormatString(_deck.EnabledRoles[i].ToString())}]({s_wikiLink}/role/{_deck.EnabledRoles[i].ToLower()})\n";
+                enabledRoles += $"[{FormatString(_deck.EnabledRoles[i].ToString())}]({s_wikiLink}/role/{_deck.EnabledRoles[i].ToLower()}){(i != _deck.EnabledRoles.Length - 1 ? ", " : "")}";
             }
 
             enabledRoles += (_deck.EnabledRoles.Length == 0) ? "- None" : "";
