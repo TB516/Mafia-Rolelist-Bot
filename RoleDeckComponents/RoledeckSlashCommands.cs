@@ -1,6 +1,4 @@
-﻿using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
-using DSharpPlus.Exceptions;
+﻿using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Mafia_Bot.RoleDeckComponents.InteractionPrechecks;
 using Newtonsoft.Json.Linq;
@@ -23,21 +21,30 @@ namespace Mafia_Bot.RoleDeckComponents
         [SlashCommand("post", "Posts a formatted gamemode to the current channel.")]
         public async Task PostList(InteractionContext ctx, [Option("JSON", "JSON data of the gamemode.")] string json)
         {
+            await ctx.DeferAsync(true);
+
             json = Regex.Replace(json, @"\\t|\t|\\n|\n|\\r|\r", string.Empty);
 
-            JObject jsonNode;
             RoledeckMessage message;
+
             try
             {
-                jsonNode = JObject.Parse(json)!;
+                JObject jsonNode = JObject.Parse(json)!;
                 message = new(ctx.Member.DisplayName, jsonNode);
             }
-            catch
+            catch (Newtonsoft.Json.JsonReaderException)
             {
-                ctx.CreateResponseAsync("Invalid gamemode data entered!", true);
+                ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("JSON was not valid!"));
                 return;
             }
+            catch (Exception e)
+            {
+                ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(e.Message));
+                return;
+            }
+
             message.SendRoledeck(ctx);
+            ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Posted gamemode!"));
         }
 
         [ContextMenu(DSharpPlus.ApplicationCommandType.MessageContextMenu, "Delete Gamemode")]
@@ -52,69 +59,6 @@ namespace Mafia_Bot.RoleDeckComponents
 
             await ctx.Channel.DeleteMessageAsync(ctx.TargetMessage);
             ctx.CreateResponseAsync("Deleted gamemode!", true);
-        }
-
-        [SlashCommand("delete", "Deletes a gamemode posting if created by you.")]
-        public async Task DeleteList(InteractionContext ctx, [Option("Gamemode", "Link to gamemode to delete.")] string link)
-        {
-            if (!ulong.TryParse(link.Split('/')[^1], out ulong id))
-            {
-                ctx.CreateResponseAsync("Thats not a valid message link!", true);
-                return;
-            }
-
-            DiscordMessage message;
-            try
-            {
-                 message = await ctx.Channel.GetMessageAsync(id);
-            }
-            catch (UnauthorizedException)
-            {
-                ctx.CreateResponseAsync("The bot doesnt have permissions to access that message!", true);
-                return;
-            }
-            catch (NotFoundException)
-            {
-                ctx.CreateResponseAsync("The requested message was not found!", true);
-                return;
-            }
-            catch (Exception e)
-            {
-                ctx.CreateResponseAsync($"There was an error accessing the message: {e.Message}", true);
-                return;
-            }
-
-            if (!(message.Interaction != null && message.Author.IsCurrent && message.Interaction.Name == "post"))
-            {
-                ctx.CreateResponseAsync("That is not a valid gamemode posting!", true);
-                return;
-            }
-            else if (ctx.Interaction.User.Id != ctx.User.Id)
-            {
-                ctx.CreateResponseAsync("You cannot delete someone else's gamemode posting!");
-                return;
-            }
-
-            try
-            {
-                ctx.Channel.DeleteMessageAsync(message);
-                ctx.CreateResponseAsync("Deleted gamemode post!", true);
-            }
-            catch (UnauthorizedException)
-            {
-                ctx.CreateResponseAsync("The bot doesnt have permissions to access that message!", true);
-                return;
-            }
-            catch (NotFoundException)
-            {
-                ctx.CreateResponseAsync("The requested message was not found!", true);
-                return;
-            }
-            catch (Exception e)
-            {
-                ctx.CreateResponseAsync($"There was an error accessing the message: {e.Message}", true);
-                return;
-            }
         }
     }
 }

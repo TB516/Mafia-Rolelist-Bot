@@ -11,6 +11,7 @@ namespace Mafia_Bot.RoleDeckComponents
     /// </summary>
     public class RoledeckMessage
     {
+        private static readonly Uri s_wikiLink = new("https://mafia.jackpapel.com/wiki");
         private readonly Roledeck _deck;
         private readonly DiscordMessageBuilder _messageBuilder;
 
@@ -27,12 +28,12 @@ namespace Mafia_Bot.RoleDeckComponents
             }
             catch
             {
-                throw new KeyNotFoundException("A JSON property was not found!");
+                throw;
             }
 
             _messageBuilder = new();
 
-            _messageBuilder.WithContent($"# \"{FormatString(_deck.Name)}\" By {author}\n\n{GetRolelist()}{GetPhaseTimes()}{GetBannedRoles()}");
+            _messageBuilder.WithContent($"# \"{FormatString(_deck.Name)}\" By {author}\n\n{GetRolelist()}{GetPhaseTimes()}{GetEnabledRoles()}");
 
             _messageBuilder.AddFile($"{_deck.Name}.json", new MemoryStream(Encoding.UTF8.GetBytes(_deck.JsonString)));
         }
@@ -42,7 +43,7 @@ namespace Mafia_Bot.RoleDeckComponents
         /// <param name="ctx"></param>
         public async void SendRoledeck(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(new(_messageBuilder));
+            await ctx.Channel.SendMessageAsync(_messageBuilder);
         }
         private string GetRolelist()
         {
@@ -53,7 +54,16 @@ namespace Mafia_Bot.RoleDeckComponents
                 rolelist += "- ";
                 for (int j = 0; j < _deck.Rolelist[i].Length; j++)
                 {
-                    rolelist += FormatString(_deck.Rolelist[i][j].ToString()) + ((_deck.Rolelist[i].Length > 1 && j < _deck.Rolelist[i].Length - 1) ? " OR " : "");
+                    string roleset = FormatString(_deck.Rolelist[i][j].ToString());
+
+                    if (Roledeck.RoleTypes.Contains(_deck.Rolelist[i].ToString()))
+                    {
+                        rolelist += $"[{roleset}]({s_wikiLink}/generated/role_set)" + ((_deck.Rolelist[i].Length > 1 && j < _deck.Rolelist[i].Length - 1) ? " OR " : "");
+                    }
+                    else
+                    {
+                        rolelist += $"[{roleset}]({s_wikiLink}/role/{_deck.Rolelist[i][j].ToLower()})" + ((_deck.Rolelist[i].Length > 1 && j < _deck.Rolelist[i].Length - 1) ? " OR " : "");
+                    }
                 }
                 rolelist += "\n";
             }
@@ -71,18 +81,18 @@ namespace Mafia_Bot.RoleDeckComponents
 
             return phaseTimes;
         }
-        private string GetBannedRoles()
+        private string GetEnabledRoles()
         {
-            string bannedRoles = "## Disabled Roles\n";
+            string enabledRoles = "## Enabled Roles\n";
 
-            for (int i = 0; i < _deck.BannedRoles.Length; i++)
+            for (int i = 0; i < _deck.EnabledRoles.Length; i++)
             {
-                bannedRoles += $"- {FormatString(_deck.BannedRoles[i])}\n";
+                enabledRoles += $"[{FormatString(_deck.EnabledRoles[i].ToString())}]({s_wikiLink}/role/{_deck.EnabledRoles[i].ToLower()}){(i != _deck.EnabledRoles.Length - 1 ? ", " : "")}";
             }
 
-            bannedRoles += (_deck.BannedRoles.Length == 0) ? "- None" : "";
+            enabledRoles += (_deck.EnabledRoles.Length == 0) ? "- None" : "";
 
-            return bannedRoles;
+            return enabledRoles;
         }
         /// <summary>
         /// Splits string at capitals and capitalizes the first letter
